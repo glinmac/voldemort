@@ -240,18 +240,22 @@ class GenericClient(object):
 
     ## read a response from the connection
     def _receive_response(self, connection):
-        size_bytes = connection.recv(4)
-        size = struct.unpack('>i', size_bytes)[0]
+        try:
+            size_bytes = connection.recv(4)
+            size = struct.unpack('>i', size_bytes)[0]
 
-        bytes_read = 0
-        data = []
+            bytes_read = 0
+            data = []
 
-        while size and bytes_read < size:
-            chunk = connection.recv(size - bytes_read)
-            bytes_read += len(chunk)
-            data.append(chunk)
+            while size and bytes_read < size:
+                chunk = connection.recv(size - bytes_read)
+                bytes_read += len(chunk)
+                data.append(chunk)
 
-        return ''.join(data)
+            return ''.join(data)
+        except Exception as ex:
+            raise VoldemortException(str(ex))
+
 
 
     ## Bootstrap cluster metadata from a list of urls of nodes in the cluster.
